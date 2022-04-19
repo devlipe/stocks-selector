@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/spf13/viper"
@@ -28,11 +29,14 @@ func PrintStocks(stocks []model.Stock, removedStocks []model.Stock) {
 }
 
 func writeToCli(stocks []model.Stock, removedStocks []model.Stock, date string) {
+	config.ClearScreen()
 	printSelectedToCli(date, stocks)
-
-	fmt.Print("\nDo you want to see the removed stocks? [yes/no]: ")
 	var awnser string
-	fmt.Scanf("%s", &awnser)
+	for awnser == "" {
+		fmt.Print("\nDo you want to see the removed stocks? [yes/no]: ")
+		fmt.Scanf("%s", &awnser)
+	}
+	awnser = strings.ToLower(awnser)
 	if awnser == "yes" || awnser == "y" {
 
 		printRemovedToCli(removedStocks)
