@@ -7,3 +7,5 @@ services:
     init: true
     volumes:
       - .:/go/app/
+    stdin_open: true
+    tty: true
