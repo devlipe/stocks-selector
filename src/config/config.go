@@ -75,6 +75,8 @@ func ConfigureApp() {
 
 func changeConfig(choice, value string) error {
 	switch choice {
+	case "?":
+		return showHelpMessage(value)
 	case "1":
 		_FILTRAR_VOLUME_FINANC = !_FILTRAR_VOLUME_FINANC
 	case "2":
@@ -145,10 +147,24 @@ func changeConfig(choice, value string) error {
 	return nil
 }
 
+func showHelpMessage(value string) error {
+	if val, ok := helpMessage[value]; ok {
+		ClearScreen()
+		fmt.Print(val)
+		fmt.Print(Blue, "\nPress enter to go back\n", Reset)
+
+		fmt.Scanln(&value)
+	} else {
+		return errors.New("There are no help message for config " + value)
+	}
+	return nil
+}
+
 func printConfig(errorMessage string) {
 	ClearScreen()
 	fmt.Println("We need to set the variables that the program uses to generate the report.")
-	fmt.Println("Digit the config number follow by the new value to change it, than press enter to run!!")
+	fmt.Println("Digit the config number follow by the new value ie `8 2.3` to change it, than press enter again to run!!")
+	fmt.Println("You can also digit '?' followed by the config number for a help message ie `? 5`")
 	fmt.Print("\nThe current configuration is:\n\n")
 	fmt.Println(Ternary(_FILTRAR_VOLUME_FINANC, Green, Red), "1. Filter Fin. Volume :\t", _FILTRAR_VOLUME_FINANC)
 	fmt.Println(Ternary(_FILTRAR_MARGEM_EBIT, Green, Red), "2. Filter Marg. Ebit :\t\t", _FILTRAR_MARGEM_EBIT)
