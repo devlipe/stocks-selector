@@ -141,7 +141,7 @@ func changeConfig(choice, value string) error {
 		if value == "cli" || value == "txt" || value == "xlsx" {
 			_OUTPUT = value
 		} else {
-			return errors.New("the value of output must be one of the following (cli, txt, xlxs)")
+			return errors.New("the value of output must be one of the following (cli, txt, xlsx)")
 		}
 	default:
 		return errors.New("something went wrong")
