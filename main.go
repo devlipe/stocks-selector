@@ -13,7 +13,6 @@ func main() {
 
 	showWelcomeMessage()
 	config.ConfigureApp()
-
 	client := config.HttpClient()
 
 	stocks, removedStocks := stocks.HandleSelectStocks(client)
@@ -32,7 +31,6 @@ func showWelcomeMessage() {
 	fmt.Print("\tOn April 10th 2022\n")
 	fmt.Print("\tVersion 1.0.0\n", config.Reset)
 	fmt.Print(config.Red, "\nPress enter to continue...\n", config.Reset)
-
 	var trash string
 	fmt.Scanln(&trash)
 }

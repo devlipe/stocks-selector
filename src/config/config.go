@@ -62,7 +62,9 @@ func ConfigureApp() {
 		if choice == "" {
 			break
 		}
-
+		newValue = strings.TrimSpace(newValue)
+		newValue = strings.ToLower(newValue)
+		newValue = strings.ReplaceAll(newValue, ",", ".")
 		err := changeConfig(choice, newValue)
 		if err != nil {
 			errorMessage = err.Error()
