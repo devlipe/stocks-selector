@@ -31,7 +31,7 @@ As a go project, you can install it using the following commands
   go install
 ```
 
-Then you should have the following command available on your sheel
+Then you should have the following command available on your CLI
 
 ```bash
   stocks-selector
