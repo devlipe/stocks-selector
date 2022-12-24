@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/spf13/viper"
@@ -17,7 +18,7 @@ func PrintStocks(stocks []model.Stock, removedStocks []model.Stock) {
 
 	switch viper.GetString("OUTPUT") {
 	case "xlsx":
-		writeToxlsx(stocks, fileName)
+		writeToxlsx(stocks, removedStocks, fileName)
 	case "txt":
 		writeToTxt(stocks, removedStocks, fileName)
 	case "cli":
@@ -28,20 +29,41 @@ func PrintStocks(stocks []model.Stock, removedStocks []model.Stock) {
 }
 
 func writeToCli(stocks []model.Stock, removedStocks []model.Stock, date string) {
+	config.ClearScreen()
 	printSelectedToCli(date, stocks)
-
-	fmt.Print("\nDo you want to see the removed stocks? [yes/no]: ")
 	var awnser string
-	fmt.Scanf("%s", &awnser)
+	for awnser == "" {
+		fmt.Print("\nDo you want to see the removed stocks? [yes/no]: ")
+		fmt.Scanf("%s", &awnser)
+	}
+	awnser = strings.ToLower(awnser)
 	if awnser == "yes" || awnser == "y" {
 
 		printRemovedToCli(removedStocks)
 	}
 }
 
-func writeToxlsx(stocks []model.Stock, fileName string) {
+func writeToxlsx(stocks []model.Stock, removedStocks []model.Stock, fileName string) {
 	file := excelize.NewFile()
 	defer file.Close()
+
+	printSelectedToXlsx(stocks, fileName, file)
+	printRemovedToXlsx(removedStocks, fileName, file)
+
+	err := os.MkdirAll("results/xlsx/", 0777)
+	if err != nil {
+		log.Fatalln("Unable to create directory", err.Error())
+	}
+
+	fileName += ".xlsx"
+	err = file.SaveAs("results/xlsx/" + fileName)
+	if err != nil {
+		log.Fatalln("Unable to create xlsx file", err.Error())
+	}
+
+}
+
+func printSelectedToXlsx(stocks []model.Stock, fileName string, file *excelize.File) {
 
 	file.SetSheetName("Sheet1", fileName)
 
@@ -73,16 +95,32 @@ func writeToxlsx(stocks []model.Stock, fileName string) {
 		file.SetCellValue(fileName, fmt.Sprintf("K%d", i+2), s.RankRoa)
 		file.SetCellValue(fileName, fmt.Sprintf("L%d", i+2), s.RankPl)
 	}
+}
 
-	err := os.MkdirAll("results/xlsx/", 0777)
-	if err != nil {
-		log.Fatalln("Unable to create directory", err.Error())
-	}
+func printRemovedToXlsx(removedStocks []model.Stock, fileName string, file *excelize.File) {
+	deletedFileName := fileName + "_deleted"
 
-	fileName += ".xlsx"
-	err = file.SaveAs("results/xlsx/" + fileName)
-	if err != nil {
-		log.Fatalln("Unable to create xlsx file", err.Error())
+	file.NewSheet(deletedFileName)
+	file.SetCellValue(deletedFileName, "A1", "Rank")
+	file.SetCellValue(deletedFileName, "B1", "Ticker")
+	file.SetCellValue(deletedFileName, "C1", "Empresa")
+	file.SetCellValue(deletedFileName, "D1", "Preço")
+	file.SetCellValue(deletedFileName, "E1", "PL")
+	file.SetCellValue(deletedFileName, "F1", "Ev/Ebit")
+	file.SetCellValue(deletedFileName, "G1", "Roa")
+	file.SetCellValue(deletedFileName, "H1", "Liquidez")
+	file.SetCellValue(deletedFileName, "H1", "Motivo")
+	for i, s := range removedStocks {
+
+		file.SetCellValue(deletedFileName, fmt.Sprintf("A%d", i+2), i+1)
+		file.SetCellValue(deletedFileName, fmt.Sprintf("B%d", i+2), s.Ticker)
+		file.SetCellValue(deletedFileName, fmt.Sprintf("C%d", i+2), s.Company_name)
+		file.SetCellValue(deletedFileName, fmt.Sprintf("D%d", i+2), s.Price)
+		file.SetCellValue(deletedFileName, fmt.Sprintf("E%d", i+2), s.P_L)
+		file.SetCellValue(deletedFileName, fmt.Sprintf("F%d", i+2), s.EV_Ebit)
+		file.SetCellValue(deletedFileName, fmt.Sprintf("G%d", i+2), s.Roa)
+		file.SetCellValue(deletedFileName, fmt.Sprintf("H%d", i+2), s.LiquidezMediaDiaria)
+		file.SetCellValue(deletedFileName, fmt.Sprintf("H%d", i+2), s.ExcludedReason)
 	}
 
 }

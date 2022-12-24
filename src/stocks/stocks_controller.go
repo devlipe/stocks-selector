@@ -170,12 +170,23 @@ func filtrarMargemEbit(stocks []model.Stock) ([]model.Stock, []model.Stock) {
 
 func getStocks(client *http.Client) ([]model.Stock, error) {
 	url := "https://statusinvest.com.br/category/advancedsearchresult?search={}&CategoryType=1"
+	method := "GET"
 
-	res, err := client.Get(url)
+	req, err := http.NewRequest(method, url, nil)
 
 	if err != nil {
+		log.Fatalln(err)
 		return nil, err
 	}
+	req.Header.Set("User-Agent", "Golang_Stoks_Selector/1.0")
+
+	res, err := client.Do(req)
+
+	if err != nil {
+		log.Fatalln(err)
+		return nil, err
+	}
+
 	defer res.Body.Close()
 
 	decoder := json.NewDecoder(res.Body)
