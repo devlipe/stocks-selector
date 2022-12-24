@@ -3,7 +3,9 @@ package config
 import (
 	"errors"
 	"fmt"
+	"log"
 	"net/http"
+	"net/http/cookiejar"
 	"os"
 	"os/exec"
 	"runtime"
@@ -215,7 +217,13 @@ func ClearScreen() {
 }
 
 func HttpClient() *http.Client {
-	client := &http.Client{Timeout: 10 * time.Second}
+
+	//crate a cookes Jar
+	jar, err := cookiejar.New(nil)
+	if err != nil {
+		log.Println(err)
+	}
+	client := &http.Client{Timeout: 10 * time.Second, Jar: jar}
 
 	return client
 }
