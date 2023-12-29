@@ -2,6 +2,7 @@ package stocks
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 	"sort"
@@ -169,7 +170,7 @@ func filtrarMargemEbit(stocks []model.Stock) ([]model.Stock, []model.Stock) {
 }
 
 func getStocks(client *http.Client) ([]model.Stock, error) {
-	url := "https://statusinvest.com.br/category/advancedsearchresult?search={}&CategoryType=1"
+	url := "https://statusinvest.com.br/category/advancedsearchresultpaginated?search={}&orderColumn=&isAsc=&page=0&take=10000&CategoryType=1"
 	method := "GET"
 
 	req, err := http.NewRequest(method, url, nil)
@@ -188,14 +189,43 @@ func getStocks(client *http.Client) ([]model.Stock, error) {
 	}
 
 	defer res.Body.Close()
+	// Create a map to hold the JSON response
+	var result map[string]interface{}
 
+	// Create a JSON decoder
 	decoder := json.NewDecoder(res.Body)
-	var stocksList []model.Stock
 
-	err = decoder.Decode(&stocksList)
-
+	// Decode the JSON response into the map
+	err = decoder.Decode(&result)
 	if err != nil {
 		return nil, err
+	}
+
+	// Extract the "list" attribute
+	list, ok := result["list"].([]interface{})
+	if !ok {
+		return nil, fmt.Errorf("could not convert list to []interface{}")
+	}
+
+	// Now you can decode the "list" into your stocksList
+	var stocksList []model.Stock
+	for _, item := range list {
+		stock, ok := item.(map[string]interface{})
+		if !ok {
+			return nil, fmt.Errorf("could not convert item to map[string]interface{}")
+		}
+		// Convert map to JSON
+		stockJson, err := json.Marshal(stock)
+		if err != nil {
+			return nil, err
+		}
+		// Convert JSON to Stock
+		var modelStock model.Stock
+		err = json.Unmarshal(stockJson, &modelStock)
+		if err != nil {
+			return nil, err
+		}
+		stocksList = append(stocksList, modelStock)
 	}
 
 	return stocksList, nil

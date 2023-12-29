@@ -31,6 +31,8 @@ func PrintStocks(stocks []model.Stock, removedStocks []model.Stock) {
 func writeToCli(stocks []model.Stock, removedStocks []model.Stock, date string) {
 	config.ClearScreen()
 	printSelectedToCli(date, stocks)
+	fmt.Println(len(stocks), " stocks were selected.")
+	fmt.Println(len(removedStocks), " stocks were removed.")
 	var awnser string
 	for awnser == "" {
 		fmt.Print("\nDo you want to see the removed stocks? [yes/no]: ")

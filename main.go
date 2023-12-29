@@ -16,6 +16,7 @@ func main() {
 	client := config.HttpClient()
 
 	stocks, removedStocks := stocks.HandleSelectStocks(client)
+	// fmt.Println(len(stocks) + len(removedStocks))
 	out.PrintStocks(stocks, removedStocks)
 }
 
